@@ -85,6 +85,9 @@ class Availability
 
     public function getIntervalMinutes(): ?int
     {
+        if($this->intervalMinutes === null || $this->intervalMinutes = 0){
+            return 5;
+        }
         return $this->intervalMinutes;
     }
 

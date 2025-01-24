@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Availability;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\Statement;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -15,6 +17,22 @@ class AvailabilityRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Availability::class);
     }
+
+    //Native SQL query to get availabilty of business on a specific day
+    public function findAvailabilityByDayNameAndBusinessId(string $dayName, int $businessId){
+        
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            SELECT a.start_time, a.end_time, a.interval_minutes 
+            FROM availability AS a 
+            INNER JOIN day d ON d.id = a.day_id 
+            INNER JOIN business b ON b.id = a.business_id 
+            WHERE d.name = :dayName AND b.id = :businessId;
+        ';
+        $stmt = $conn->executeQuery($sql, ['dayName' => $dayName, 'businessId' => $businessId]);
+        return $stmt->fetchAllAssociative();
+    }
+
 
     //    /**
     //     * @return Availability[] Returns an array of Availability objects
