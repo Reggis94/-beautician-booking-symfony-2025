@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\ServiceRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -41,6 +43,17 @@ class Service
 
     #[ORM\Column(nullable: true)]
     private ?\DateTimeImmutable $deletedAt = null;
+
+    /**
+     * @var Collection<int, AppointmentService>
+     */
+    #[ORM\OneToMany(targetEntity: AppointmentService::class, mappedBy: 'service')]
+    private Collection $appointmentServices;
+
+    public function __construct()
+    {
+        $this->appointmentServices = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -127,6 +140,36 @@ class Service
     public function setDeletedAt(?\DateTimeImmutable $deletedAt): static
     {
         $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, AppointmentService>
+     */
+    public function getAppointmentServices(): Collection
+    {
+        return $this->appointmentServices;
+    }
+
+    public function addAppointmentService(AppointmentService $appointmentService): static
+    {
+        if (!$this->appointmentServices->contains($appointmentService)) {
+            $this->appointmentServices->add($appointmentService);
+            $appointmentService->setService($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAppointmentService(AppointmentService $appointmentService): static
+    {
+        if ($this->appointmentServices->removeElement($appointmentService)) {
+            // set the owning side to null (unless already changed)
+            if ($appointmentService->getService() === $this) {
+                $appointmentService->setService(null);
+            }
+        }
 
         return $this;
     }
