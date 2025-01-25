@@ -22,7 +22,7 @@ class AppointmentController extends AbstractController
         //Validate form data
         //Check if price is the same as in the database (price + commission fee 10%)
         //If price is not the same, return an error message else get price from database
-
+        $price = 100.0;
 
         //Simulate form data validation by creating fake POST and setting POST data to an array
         //Form fields are date, time, first_name, last_name, email, phoneCountryCode, phone, service_id, csrf_token
@@ -45,17 +45,19 @@ class AppointmentController extends AbstractController
         //Simulate business timezone
         $businessTimezone = 'America/New_York';
 
-        dump($_POST);
+        // dump($_POST);
         //Convert to UTC time
         $dateTime = new \DateTime($_POST['date'] . ' ' . $_POST['time'], new \DateTimeZone($businessTimezone));
+        $dateTimeUTC = $dateTime->setTimezone(new \DateTimeZone('UTC'));
 
         $appointment = new Appointment();
-        $appointment->setStartDateTimeUtc(new \DateTimeImmutable($dateTime->format('Y-m-d H:i:s'), new \DateTimeZone('UTC')));
+        $appointment->setStartDateTimeUtc(new \DateTimeImmutable($dateTimeUTC->format('Y-m-d H:i:s'), new \DateTimeZone('UTC')));
         $appointment->setFirstName($_POST['first_name']);
         $appointment->setLastName($_POST['last_name']);
         $appointment->setEmail($_POST['email']);
         $appointment->setPhoneCountryCode($_POST['phone_country_code']);
         $appointment->setPhoneNumber($_POST['phone']);
+        $appointment->setTimezone($businessTimezone);
         //Get the final price
         
         $invoice = new Invoice();
@@ -77,6 +79,7 @@ class AppointmentController extends AbstractController
             $appointmentService = new AppointmentService();
             $appointmentService->setService($service);
             $appointmentService->setAppointment($appointment);
+            $appointmentService->setPrice($service->getPrice());
             $appointmentServices[] = $appointmentService;
         }
 
