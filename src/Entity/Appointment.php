@@ -41,6 +41,12 @@ class Appointment
     #[ORM\OneToMany(targetEntity: Invoice::class, mappedBy: 'appointment')]
     private Collection $invoices;
 
+    #[ORM\Column(length: 7, nullable: true)]
+    private ?string $phoneCountryCode = null;
+
+    #[ORM\Column(length: 20, nullable: true)]
+    private ?string $phoneNumber = null;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
@@ -167,5 +173,29 @@ class Appointment
             $errorsString = (string) $errors;
             throw new \Exception($errorsString);
         }
+    }
+
+    public function getPhoneCountryCode(): ?string
+    {
+        return $this->phoneCountryCode;
+    }
+
+    public function setPhoneCountryCode(string $phoneCountryCode): static
+    {
+        $this->phoneCountryCode = $phoneCountryCode;
+
+        return $this;
+    }
+
+    public function getPhoneNumber(): ?string
+    {
+        return $this->phoneNumber;
+    }
+
+    public function setPhoneNumber(?string $phoneNumber): static
+    {
+        $this->phoneNumber = $phoneNumber;
+
+        return $this;
     }
 }
