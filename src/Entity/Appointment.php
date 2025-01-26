@@ -56,6 +56,9 @@ class Appointment
     #[ORM\Column(length: 100)]
     private ?string $email = null;
 
+    #[ORM\Column]
+    private ?int $duration_minutes = null;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
@@ -77,6 +80,11 @@ class Appointment
         $this->startDateTimeUtc = $startDateTimeUtc;
 
         return $this;
+    }
+
+    public function getStartDateTimeConvertedToTimeZone(): ?\DateTimeImmutable
+    {
+        return $this->startDateTimeUtc->setTimezone(new \DateTimeZone($this->timezone));
     }
 
     public function getEndDateTimeUtc(): ?\DateTimeImmutable
@@ -240,6 +248,18 @@ class Appointment
     public function setEmail(string $email): static
     {
         $this->email = $email;
+
+        return $this;
+    }
+
+    public function getDurationMinutes(): ?int
+    {
+        return $this->duration_minutes;
+    }
+
+    public function setDurationMinutes(int $duration_minutes): static
+    {
+        $this->duration_minutes = $duration_minutes;
 
         return $this;
     }

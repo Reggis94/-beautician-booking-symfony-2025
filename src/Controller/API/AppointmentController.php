@@ -3,6 +3,7 @@
 namespace App\Controller\API;
 
 use App\Entity\Appointment;
+use App\Entity\Business;
 use App\Entity\Invoice;
 use App\Entity\Service;
 use App\Entity\AppointmentService;
@@ -14,6 +15,21 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class AppointmentController extends AbstractController
 {
+    //All GET requests
+    #[Route('api/appointment/business/{businessId}/upcoming/', name: 'api_get_appointment_business_upcoming', methods: ['GET'])]
+    public function apiGetAppointmentBusinessUpcoming(int $businessId, EntityManagerInterface $entityManager): JsonResponse
+    {
+        //Get business by ID
+        $business = $entityManager->getRepository(Business::class)->find($businessId);
+        
+        //Get all upcoming appointments of a business
+        $appointments = $entityManager->getRepository(Appointment::class)->findUpcomingBy(['business' => $business]);
+
+        //Return the appointments in JSON format
+        return new JsonResponse($appointments);
+    }
+
+    //All POST requests
     #[Route('api/appointment', name: 'api_post_appointment', methods: ['POST'])]
     public function apiPostAppointment(EntityManagerInterface $entityManager): JsonResponse
     {
