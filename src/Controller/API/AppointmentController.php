@@ -23,9 +23,18 @@ class AppointmentController extends AbstractController
         $business = $entityManager->getRepository(Business::class)->find($businessId);
         
         //Get all upcoming appointments of a business
-        $appointments = $entityManager->getRepository(Appointment::class)->findUpcomingBy(['business' => $business]);
-
+        $appointments = $entityManager->getRepository(Appointment::class)->findUpcomingByBusiness(['business' => $business]);
+        // dump($appointments);
         //Return the appointments in JSON format
+        return new JsonResponse($appointments);
+    }
+
+    //Past appointments
+    //Work on cache if the query is long when serializer groups will be used
+    #[Route('api/appointment/business/{businessId}/past/', name: 'api_get_appointment_business_past', methods: ['GET'])]
+    public function apiGetAppointmentBusinessPast(int $businessId, EntityManagerInterface $entityManager){
+        $business = $entityManager->getRepository(Business::class)->find($businessId);
+        $appointments = $entityManager->getRepository(Appointment::class)->findPastByBusiness(['business' => $business]);
         return new JsonResponse($appointments);
     }
 
