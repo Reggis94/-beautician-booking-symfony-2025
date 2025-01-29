@@ -59,6 +59,8 @@ class Appointment
     #[ORM\Column]
     private ?int $duration_minutes = null;
 
+    private \DateTimeImmutable $startDateTimeConvertedToTimezone;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
@@ -86,6 +88,17 @@ class Appointment
     {
         return $this->startDateTimeUtc->setTimezone(new \DateTimeZone($this->timezone));
     }
+
+    // public function setStartDateTimeConvertedToTimeZone(\DateTimeImmutable $startDateTimeConvertedToTimezone): static
+    // {
+    //     $this->startDateTimeConvertedToTimeZone = $startDateTimeConvertedToTimezone;
+        
+    //     //Convert to UTC time
+    //     $this->startDateTimeUtc = $startDateTimeConvertedToTimezone->setTimezone(new \DateTimeZone('UTC'));
+    //     return $this;
+    // }
+
+    
 
     public function getEndDateTimeUtc(): ?\DateTimeImmutable
     {

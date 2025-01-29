@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentController extends AbstractController
 {
-    #[Route('/business/appointment/{id}/edit', name: 'business_edit_appointment', methods: ['GET', 'PUT'])]
+    #[Route('/business/appointment/{id}/edit', name: 'business_edit_appointment')]
     public function businessEdit(int $id, Request $request, EntityManagerInterface $em): Response
     {
         $appointment = $em->getRepository(Appointment::class)->find($id);
@@ -21,17 +21,16 @@ class AppointmentController extends AbstractController
             throw $this->createNotFoundException('No appointment found for id ' . $id);
         }
 
-        $appointmentForm = $this->createForm(AppointmentType::class, $appointment);
+        $appointmentForm = $this->createForm(AppointmentType::class, $appointment, ['business_id' => 2]);
 
-        if ($request->isMethod('PUT')) {
-            $appointmentForm->handleRequest($request);
-            if ($appointmentForm->isSubmitted() && $appointmentForm->isValid()) {
-                $entityManager = $this->getDoctrine()->getManager();
-                $entityManager->flush();
-
-                return $this->redirectToRoute('appointment_success');
-            }
+        $appointmentForm->handleRequest($request);
+        if ($appointmentForm->isSubmitted() && $appointmentForm->isValid()) {
+            dump('VALIDE');
+            $entityManager->flush();
+            exit;
+            return $this->redirectToRoute('appointment_success');
         }
+        
 
         return $this->render('appointment/edit_by_business.html.twig', [
             'form' => $appointmentForm->createView(),
