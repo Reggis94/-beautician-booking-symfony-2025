@@ -21,13 +21,14 @@ class AppointmentController extends AbstractController
             throw $this->createNotFoundException('No appointment found for id ' . $id);
         }
 
-        $appointmentForm = $this->createForm(AppointmentType::class, $appointment, ['business_id' => 2]);
+        $appointmentForm = $this->createForm(AppointmentType::class, $appointment);
 
         $appointmentForm->handleRequest($request);
         if ($appointmentForm->isSubmitted() && $appointmentForm->isValid()) {
+            //Call API
             dump('VALIDE');
-            $entityManager->flush();
-            exit;
+            $em->flush();
+            // exit;
             return $this->redirectToRoute('appointment_success');
         }
         

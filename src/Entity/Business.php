@@ -48,6 +48,9 @@ class Business
     #[ORM\OneToMany(targetEntity: Availability::class, mappedBy: 'business')]
     private Collection $availabilities;
 
+    #[ORM\Column(length: 150)]
+    private ?string $timezoneName = null;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -199,6 +202,18 @@ class Business
                 $availability->setBusiness(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getTimezoneName(): ?string
+    {
+        return $this->timezoneName;
+    }
+
+    public function setTimezoneName(string $timezoneName): static
+    {
+        $this->timezoneName = $timezoneName;
 
         return $this;
     }
