@@ -2,7 +2,9 @@
 namespace App\Controller;
 
 use App\Entity\Availability;
-use App\Form\Type\AvailabilityType;
+use App\Entity\Business;
+use App\Entity\Day;
+use App\Form\Type\WeekAvailabilityType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -13,15 +15,33 @@ class AvailabilityController extends AbstractController{
     #[Route('/business/availability/new', name: 'new_week_availability')]
     public function newWeekAvailability(EntityManagerInterface $em, Request $request)
     {
-        $availability = new Availability();
+        $daysString = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         //Create availability form
-        $form = $this->createForm(AvailabilityType::class, $availability);
-        dump($form);
-        dump($form->isSubmitted());
+        $form = $this->createForm(WeekAvailabilityType::class);
         $form->handleRequest($request);
+        dump($form->getData());
+        dump($request->isMethod('POST'));
         if($form->isSubmitted() && $form->isValid()){
+            dump($form->getData());
+
+            foreach($daysString as $dayString){
+                foreach($form->getData() as $key => $value){
+                    if($key == 'startTime' . $dayString){
+                        $availability = new Availability();
+                        $dayObj = $em->getRepository(Day::class)->findOneBy(['name' => $dayString]);
+                        $availability->setDay($dayObj);
+                        $availability->setStartTime($value);
+                        $availability->setEndTime($form->getData()['endTime' . $dayString]);
+                        $availability->setIntervalMinutes($form->getData()['intervalMinutes' . $dayString]);
+                        $availability->setBusiness($em->getRepository(Business::class)->find(2));
+                        //$availability->setBusiness($this->getUser()->getBusiness());
+                        $em->persist($availability);
+                    }
+                }
+            }
+                    
+
             //Save availability
-            $em->persist($availability);
             $em->flush();
             // $this->addFlash('success', 'Availability added successfully');
             // $this->redirectToRoute('new_week_availability');
