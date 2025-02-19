@@ -15,6 +15,10 @@ class AvailabilityController extends AbstractController{
     #[Route('/business/availability/new', name: 'new_week_availability')]
     public function newWeekAvailability(EntityManagerInterface $em, Request $request)
     {
+        //TODO: This page is only visible if there is no week days open in database
+        //TODO: If there is already week days open in database, redirect to edit page
+        //TODO: We shall add a weekAvailabilityVersion of 0 field in the business table to keep track of the week availability version
+        //TODO: We shall increment weekAvailabilityVersion by 1 each time a week availability is edited
         $daysString = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
         //Create availability form
         $form = $this->createForm(WeekAvailabilityType::class);

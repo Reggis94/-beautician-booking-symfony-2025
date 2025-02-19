@@ -27,6 +27,8 @@ class Service
     #[Groups(['service.client'])]
     private ?string $description = null;
 
+    private ?int $duration = null;
+
     #[ORM\Column(nullable: true)]
     #[Groups(['service.client'])]
     private ?float $price = null;
@@ -80,6 +82,18 @@ class Service
     public function setDescription(?string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getDuration(): ?int
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?int $duration): static
+    {
+        $this->duration = $duration;
 
         return $this;
     }
