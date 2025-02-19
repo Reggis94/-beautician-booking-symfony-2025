@@ -27,7 +27,9 @@ class Service
     #[Groups(['service.client'])]
     private ?string $description = null;
 
-    private ?int $duration = null;
+    #[ORM\Column(nullable: true)]
+    #[Groups(['service.client'])]
+    private ?int $durationMinute = null;
 
     #[ORM\Column(nullable: true)]
     #[Groups(['service.client'])]
@@ -86,14 +88,14 @@ class Service
         return $this;
     }
 
-    public function getDuration(): ?int
+    public function getDurationMinute(): ?int
     {
-        return $this->duration;
+        return $this->durationMinute;
     }
 
-    public function setDuration(?int $duration): static
+    public function setDurationMinute(?int $durationMinute): static
     {
-        $this->duration = $duration;
+        $this->durationMinute = $durationMinute;
 
         return $this;
     }
