@@ -23,6 +23,7 @@ class ServiceController extends AbstractController
             // $service->setBusiness($this->getUser()->getBusiness());
             //Simulation of attributing a business
             $service->setBusiness($em->getRepository(Business::class)->find(2));
+            $service->setCreatedAt(new \DateTimeImmutable());
             $em->persist($service);
             $em->flush();
         }

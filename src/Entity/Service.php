@@ -143,8 +143,9 @@ class Service
 
     public function setCreatedAt(\DateTimeImmutable $createdAt): static
     {
+        //Set timezone of $createdAt
+        $createdAt->setTimezone(new \DateTimeZone('UTC'));
         $this->createdAt = $createdAt;
-
         return $this;
     }
 
