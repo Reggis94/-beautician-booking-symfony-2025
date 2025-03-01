@@ -199,6 +199,8 @@ class Appointment
     //Do not forget to catch the exception in the controller
     public function validate(ValidatorInterface $validator){
         $errors = $validator->validate($this);
+        //Check if instance of ConstraintViolationList
+        dump($errors);
         if (count($errors) > 0) {
             $errorsString = (string) $errors;
             throw new \Exception($errorsString);

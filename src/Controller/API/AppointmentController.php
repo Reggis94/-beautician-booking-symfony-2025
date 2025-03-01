@@ -39,7 +39,17 @@ class AppointmentController extends AbstractController
     }
 
     //All POST requests
-    #[Route('api/appointment', name: 'api_post_appointment', methods: ['POST'])]
+
+    //TODO: Check Content-Type is x-www-form-urlencoded
+    //TODO: Manually check Repeated Email and Phone Number with phoneCountryCode
+    //TODO: Get csrf token from the form and validate it
+    //TODO: Check if the date and time are in the future
+    //TODO: Check availabilty
+    //TODO: Manually use validator functions in classes
+    //TODO: Write event listener for validating before persisting
+    //TODO: Write try catch and check if ValidationException is thrown
+    //TODO: Inject ValidatorInterface in the constructor of Appointment class
+    #[Route('api/appointment/', name: 'api_post_appointment', methods: ['POST'])]
     public function apiPostAppointment(EntityManagerInterface $entityManager): JsonResponse
     {
         //Get form data
