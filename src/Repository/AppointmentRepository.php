@@ -24,16 +24,32 @@ class AppointmentRepository extends ServiceEntityRepository
         $currentDateTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
 
         $conn = $this->getEntityManager()->getConnection();
+
+        //POSTGRESQL
         $sql = '
             SELECT b.id AS business_id, a.id AS appointment_id, s.id AS service_id, a.start_date_time_utc 
             FROM appointment a 
             INNER JOIN appointment_service aps ON a.id = aps.appointment_id 
             INNER JOIN service s ON aps.service_id = s.id 
             INNER JOIN business b ON s.business_id = b.id 
-            WHERE :currentDateTime < DATE_ADD(a.start_date_time_utc, INTERVAL a.duration_minutes MINUTE)
+            WHERE :currentDateTime < a.start_date_time_utc + (a.duration_minutes * INTERVAL \'1 minute\')
             AND b.id = :businessId
             ORDER BY a.start_date_time_utc ASC;
         ';
+
+        //MYSQL
+        // $sql = '
+        //     SELECT b.id AS business_id, a.id AS appointment_id, s.id AS service_id, a.start_date_time_utc 
+        //     FROM appointment a 
+        //     INNER JOIN appointment_service aps ON a.id = aps.appointment_id 
+        //     INNER JOIN service s ON aps.service_id = s.id 
+        //     INNER JOIN business b ON s.business_id = b.id 
+        //     WHERE :currentDateTime < DATE_ADD(a.start_date_time_utc, INTERVAL a.duration_minutes MINUTE)
+        //     AND b.id = :businessId
+        //     ORDER BY a.start_date_time_utc ASC;
+        // ';
+        // dump($currentDateTime->format('Y-m-d H:i:s'), $criteria['business']->getId());
+        // exit;
         $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
         // dump($stmt->fetchAllAssociative());
         return $stmt->fetchAllAssociative();

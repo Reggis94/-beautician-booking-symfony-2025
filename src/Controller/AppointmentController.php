@@ -12,6 +12,26 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentController extends AbstractController
 {
+    #[Route('business/appointment/{id}/show', name: 'business_show_appointment')]
+    public function appointmentShow(int $id, EntityManagerInterface $em): Response
+    {
+        //TODO: Add voter to check if the user is the owner of the appointment
+        $appointment = $em->getRepository(Appointment::class)->find($id);
+
+        if (!$appointment) {
+            throw $this->createNotFoundException('No appointment found for id ' . $id);
+        }
+
+        return $this->render('appointment/business_show.html.twig', [
+            'appointment' => $appointment,
+        ]);
+    }
+
+    #[Route('busineess/appointment/{id}/new', name: 'business_new_appointment')]
+    public function businessNew(){
+        return new Response('New appointment');
+    }
+
     #[Route('/business/appointment/{id}/edit', name: 'business_edit_appointment')]
     public function businessEdit(int $id, Request $request, EntityManagerInterface $em): Response
     {

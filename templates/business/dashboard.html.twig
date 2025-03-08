@@ -1,0 +1,19 @@
+<div>
+	<h2>Dashboard</h2>
+	<p>Welcome to your business dashboard. Here you can manage your business, view your orders, and more.</p>
+	<hr>
+</div>
+
+<div>
+	<h2>Upcoming Appoinmtents</h2>
+	<hr>
+	{# {{ dump(upcomingAppointments) }} #}
+	{% for a in upcomingAppointments %}
+		<p>{{ a.startDateTimeUtc|date('m/d/y h:i A', a.timezone)}}</p>
+		<p>{{ a.firstName }}
+			{{ a.lastName }}</p>
+		<a href="{{path('business_show_appointment', {'id': a.id})}}">
+			<button class="btn btn-primary">View Appointment</button>
+		</a>
+	{% endfor %}
+</div>

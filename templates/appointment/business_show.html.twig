@@ -1,0 +1,25 @@
+<h1>Appointment of
+	{{ appointment.startDateTimeUtc|date('m/d/Y h:i A', appointment.timezone) }}</h1>
+<a href="{{path('business_new_appointment')}}">
+	<button>Add a new appointment</button>
+</a>
+<p>Customer:
+	{{ appointment.firstName }}
+	{{ appointment.lastName }}</p>
+<p>Phone:
+	{{ appointment.phoneCountryCode}}
+	{{ appointment.phoneNumber }}</p>
+<p>Email:
+	{{ appointment.email }}</p>
+Services:
+<ul>
+	{% set totalPrice = 0 %}
+	{% for appointmentService in appointment.appointmentServices %}
+		<li>{{ appointmentService.service.name }}:
+												    ${{ (appointmentService.service.price / 100)|number_format(2,'.',',')}}</li>
+		{% set totalPrice = totalPrice + appointmentService.service.price %}
+	{% endfor %}
+</ul>
+<p>Total Price: ${{ (totalPrice / 100)|number_format(2,'.',',') }}</p>
+
+{# <a href="{{ path('appointment_delete', {'id': appointment.id})}}">Delete appointment</a> #}
