@@ -51,10 +51,17 @@ class Business
     #[ORM\Column(length: 150)]
     private ?string $timezoneName = null;
 
+    /**
+     * @var Collection<int, CategoryService>
+     */
+    #[ORM\OneToMany(targetEntity: CategoryService::class, mappedBy: 'business')]
+    private Collection $categoryServices;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->availabilities = new ArrayCollection();
+        $this->categoryServices = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -214,6 +221,36 @@ class Business
     public function setTimezoneName(string $timezoneName): static
     {
         $this->timezoneName = $timezoneName;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, CategoryService>
+     */
+    public function getCategoryServices(): Collection
+    {
+        return $this->categoryServices;
+    }
+
+    public function addCategoryService(CategoryService $categoryService): static
+    {
+        if (!$this->categoryServices->contains($categoryService)) {
+            $this->categoryServices->add($categoryService);
+            $categoryService->setBusiness($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCategoryService(CategoryService $categoryService): static
+    {
+        if ($this->categoryServices->removeElement($categoryService)) {
+            // set the owning side to null (unless already changed)
+            if ($categoryService->getBusiness() === $this) {
+                $categoryService->setBusiness(null);
+            }
+        }
 
         return $this;
     }
