@@ -14,6 +14,9 @@ class DatetimeUtcToTimezoneTransformer implements DataTransformerInterface
 
     public function transform($dateTimeUtc): \DateTimeImmutable
     {
+        if($dateTimeUtc === null){
+            return new \DateTimeImmutable( 'now', new \DateTimeZone($this->timezone));
+        }
         $dateTime = $dateTimeUtc->setTimezone(new \DateTimeZone($this->timezone));
         return $dateTime;
     }

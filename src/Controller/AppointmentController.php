@@ -27,9 +27,18 @@ class AppointmentController extends AbstractController
         ]);
     }
 
-    #[Route('busineess/appointment/{id}/new', name: 'business_new_appointment')]
-    public function businessNew(){
-        return new Response('New appointment');
+    #[Route('business/appointment/new', name: 'business_new_appointment')]
+    public function businessNew(Request $request, EntityManagerInterface $em){
+        $form = $this->createForm(AppointmentType::class);
+        $form->handleRequest($request);
+        if( $form->isSubmitted() && $form->isValid()){
+            $appointment = $form->getData();
+            $appointment->setCreatedAt(new \DateTimeImmutable(), "UTC");
+            $em->persist($appointment);
+            $em->flush();
+            return $this->redirectToRoute('business_dashboard');
+        }
+        return $this->render('appointment/new.html.twig', ['form' => $form->createView()]);
     }
 
     #[Route('/business/appointment/{id}/edit', name: 'business_edit_appointment')]
