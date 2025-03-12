@@ -9,6 +9,8 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
@@ -32,8 +34,9 @@ class AppointmentType extends AbstractType
         $timezone = $business ? $business->getTimezoneName() : 'UTC';
         dump($timezone);
         // exit;
-
-        $builder->add('phoneNumber');
+        $builder->add('firstName', TextType::class, ['required' => false]);
+        $builder->add('lastName', TextType::class, ['required' => true]);
+        $builder->add('phoneNumber', TextType::class, ['required' => false]);
         // Get datetime in the user's timezone
         // Show according to the user's timezone
         //Use data transformer to convert the datetime to the user's timezone

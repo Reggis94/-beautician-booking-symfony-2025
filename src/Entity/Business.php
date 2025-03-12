@@ -57,11 +57,18 @@ class Business
     #[ORM\OneToMany(targetEntity: CategoryService::class, mappedBy: 'business')]
     private Collection $categoryServices;
 
+    /**
+     * @var Collection<int, Appointment>
+     */
+    #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'business')]
+    private Collection $appointments;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
         $this->availabilities = new ArrayCollection();
         $this->categoryServices = new ArrayCollection();
+        $this->appointments = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -249,6 +256,36 @@ class Business
             // set the owning side to null (unless already changed)
             if ($categoryService->getBusiness() === $this) {
                 $categoryService->setBusiness(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Appointment>
+     */
+    public function getAppointments(): Collection
+    {
+        return $this->appointments;
+    }
+
+    public function addAppointment(Appointment $appointment): static
+    {
+        if (!$this->appointments->contains($appointment)) {
+            $this->appointments->add($appointment);
+            $appointment->setBusiness($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAppointment(Appointment $appointment): static
+    {
+        if ($this->appointments->removeElement($appointment)) {
+            // set the owning side to null (unless already changed)
+            if ($appointment->getBusiness() === $this) {
+                $appointment->setBusiness(null);
             }
         }
 

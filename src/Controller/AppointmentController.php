@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Appointment;
+use App\Entity\Business;
 use App\Form\Type\AppointmentType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -29,11 +30,16 @@ class AppointmentController extends AbstractController
 
     #[Route('business/appointment/new', name: 'business_new_appointment')]
     public function businessNew(Request $request, EntityManagerInterface $em){
+        //TODO: Get current business
+        //$business = $this->getUser()->getBusiness();
+        $business = $em->getRepository(Business::class)->find(2);
         $form = $this->createForm(AppointmentType::class);
         $form->handleRequest($request);
         if( $form->isSubmitted() && $form->isValid()){
             $appointment = $form->getData();
             $appointment->setCreatedAt(new \DateTimeImmutable(), "UTC");
+            $appointment->setTimezone($business->getTimezoneName());
+            $appointment->setBusiness($business);
             $em->persist($appointment);
             $em->flush();
             return $this->redirectToRoute('business_dashboard');

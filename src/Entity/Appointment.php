@@ -29,6 +29,9 @@ class Appointment
     #[ORM\Column(nullable: true)]
     private ?float $price = null;
 
+    #[ORM\Column(nullable: false)]
+    private ?\DateTimeImmutable $createdAt = null;
+
     /**
      * @var Collection<int, AppointmentService>
      */
@@ -60,6 +63,10 @@ class Appointment
     private ?int $duration_minutes = null;
 
     private \DateTimeImmutable $startDateTimeConvertedToTimezone;
+
+    #[ORM\ManyToOne(inversedBy: 'appointments')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Business $business = null;
 
     public function __construct()
     {
@@ -275,6 +282,25 @@ class Appointment
     public function setDurationMinutes(int $duration_minutes): static
     {
         $this->duration_minutes = $duration_minutes;
+
+        return $this;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getBusiness(): ?Business
+    {
+        return $this->business;
+    }
+
+    public function setBusiness(?Business $business): static
+    {
+        $this->business = $business;
 
         return $this;
     }
