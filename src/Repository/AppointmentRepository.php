@@ -18,6 +18,35 @@ class AppointmentRepository extends ServiceEntityRepository
         parent::__construct($registry, Appointment::class);
     }
 
+    public function findPastByBusiness(array $criteria){
+        $currentDateTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            SELECT a.id
+            FROM appointment a
+            WHERE a.business_id = :businessId
+            AND (
+                (a.duration_minutes IS NOT NULL AND NOW() >= a.start_date_time_utc + (a.duration_minutes * INTERVAL \'1 minute\'))
+                OR (a.duration_minutes IS NULL AND NOW() >= a.start_date_time_utc)
+            );
+        ';
+
+        $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
+        // dump($stmt->fetchAllAssociative());
+        $appointmentsFetchAssoc = $stmt->fetchAllAssociative();
+
+        $appointments = [];
+        foreach($appointmentsFetchAssoc as $appointment){
+            $a = $this->find($appointment['id']);
+            $appointments[] = $a;
+        }
+
+        if($appointments){
+            dump($appointments[0]->getId());
+        };
+        return $appointments;
+    }
+
     public function findUpcomingByBusiness(array $criteria): array
     {
         // Get the current datetime in UTC
@@ -27,14 +56,13 @@ class AppointmentRepository extends ServiceEntityRepository
 
         //POSTGRESQL
         $sql = '
-            SELECT b.id AS business_id, a.id AS appointment_id, s.id AS service_id, a.start_date_time_utc 
-            FROM appointment a 
-            INNER JOIN appointment_service aps ON a.id = aps.appointment_id 
-            INNER JOIN service s ON aps.service_id = s.id 
-            INNER JOIN business b ON s.business_id = b.id 
-            WHERE :currentDateTime < a.start_date_time_utc + (a.duration_minutes * INTERVAL \'1 minute\')
-            AND b.id = :businessId
-            ORDER BY a.start_date_time_utc ASC;
+            SELECT a.id
+            FROM appointment a
+            WHERE a.business_id = :businessId
+            AND (
+                (a.duration_minutes IS NOT NULL AND NOW() < a.start_date_time_utc + (a.duration_minutes * INTERVAL \'1 minute\'))
+                OR (a.duration_minutes IS NULL AND NOW() < a.start_date_time_utc)
+            );
         ';
 
         //MYSQL
@@ -52,28 +80,18 @@ class AppointmentRepository extends ServiceEntityRepository
         // exit;
         $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
         // dump($stmt->fetchAllAssociative());
-        return $stmt->fetchAllAssociative();
-    }
+        $upcomingAppointmentsFetchAssoc = $stmt->fetchAllAssociative();
 
-    public function findPastByBusiness(array $criteria): array
-    {
-        // Get the current datetime in UTC
-        $currentDateTime = new \DateTimeImmutable('now', new \DateTimeZone('UTC'));
+        $upcomingAppointments = [];
+        foreach($upcomingAppointmentsFetchAssoc as $appointment){
+            $a = $this->find($appointment['id']);
+            $upcomingAppointments[] = $a;
+        }
 
-        $conn = $this->getEntityManager()->getConnection();
-        $sql = '
-            SELECT b.id AS business_id, a.id AS appointment_id, s.id AS service_id, a.start_date_time_utc 
-            FROM appointment a 
-            INNER JOIN appointment_service aps ON a.id = aps.appointment_id 
-            INNER JOIN service s ON aps.service_id = s.id 
-            INNER JOIN business b ON s.business_id = b.id 
-            WHERE :currentDateTime > DATE_ADD(a.start_date_time_utc, INTERVAL a.duration_minutes MINUTE)
-            AND b.id = :businessId
-            ORDER BY a.start_date_time_utc DESC;
-        ';
-        $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
-        // dump($stmt->fetchAllAssociative());
-        return $stmt->fetchAllAssociative();
+        if($upcomingAppointments){
+            dump($upcomingAppointments[0]->getId());
+        };
+        return $upcomingAppointments;
     }
 
     // To use when groups will be used to get the correct values to be displayed

@@ -17,3 +17,17 @@
 		</a>
 	{% endfor %}
 </div>
+
+<div>
+	<h2>Past Appoinmtents</h2>
+	<hr>
+	{# {{ dump(upcomingAppointments) }} #}
+	{% for a in pastAppointments %}
+		<p>{{ a.startDateTimeUtc|date('m/d/y h:i A', a.timezone)}}</p>
+		<p>{{ a.firstName }}
+			{{ a.lastName }}</p>
+		<a href="{{path('business_show_appointment', {'id': a.id})}}">
+			<button class="btn btn-primary">View Appointment</button>
+		</a>
+	{% endfor %}
+</div>

@@ -16,6 +16,16 @@ class ServiceRepository extends ServiceEntityRepository
         parent::__construct($registry, Service::class);
     }
 
+    public function findAllByBusiness(array $criterias = []){
+        dump($criterias['business']);
+        return $this->getEntityManager()->createQueryBuilder()->select('s')
+            ->from(Service::class, 's')
+            ->andWhere('s.business = :business')
+            ->setParameter('business', $criterias['business'])
+            ->getQuery()
+            ->getResult();
+    }
+
     //    /**
     //     * @return Service[] Returns an array of Service objects
     //     */
