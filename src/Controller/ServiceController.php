@@ -43,18 +43,47 @@ class ServiceController extends AbstractController
     }
 
     #[Route('service/edit/{id}', name:'edit_service')]
-    public function editService($id, EntityManagerInterface $em){
+    public function editService($id, Request $request, EntityManagerInterface $em){
         $service = $em->getRepository(Service::class)->find($id);
-        $form = $this->createForm(ServiceType::class, $service);
+        //TODO: Check if service is most recent else get most recent service
+        $serviceLatestVersion = $em->getRepository(Service::class)->findLatestVersion($service);
+        var_dump($serviceLatestVersion->getId());
+        // exit;
+        //TODO: Check if current object is not deleted. Then throw NotFoundHttpException
+        if(!$serviceLatestVersion || $serviceLatestVersion->getDeletedAt()){
+            throw $this->createNotFoundException('Service not found');
+        }
+        //TODO: Check if current object has an original service. If it has one, then get most previous service.
+        // $previousService = $em->getRepository(Service::class)->findOneBy(['original' => $id]);
+
+        // $serviceOriginal = $em->getRepository(Service::class)->find($id);
+        
+        $serviceEdited = new Service();
+        $serviceEdited->setName($serviceLatestVersion->getName());
+        $serviceEdited->setDescription($serviceLatestVersion->getDescription());
+        $serviceEdited->setPrice($serviceLatestVersion->getPrice());
+        $serviceEdited->setDurationMinute($serviceLatestVersion->getDurationMinute());
+        $serviceEdited->setBusiness($serviceLatestVersion->getBusiness());
+        $serviceEdited->setCreatedAt(new \DateTimeImmutable());
+        $serviceEdited->setIsActive($serviceLatestVersion->isActive());
+        $serviceEdited->setOriginal($service);
+
+        $form = $this->createForm(ServiceType::class, $serviceEdited);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
-            $serviceSoftUpdate = $form->getData();
-            if($serviceSoftUpdate != $service){
-                $serviceSoftUpdate->setCreatedAt(new \DateTimeImmutable());
-                $em->persist($service);
+            $serviceEdited = $form->getData();
+            // dump($serviceOriginal->getName(), $service->getName());
+            // exit;
+            //Check if the service has been edited
+            //Dump the original service and the edited service
+            dump($serviceLatestVersion, $serviceEdited);
+            // exit;
+            if($serviceLatestVersion->getName() != $serviceEdited->getName() || $serviceLatestVersion->getDescription() != $serviceEdited->getDescription() 
+            || $serviceLatestVersion->getPrice() != $serviceEdited->getPrice() || $serviceLatestVersion->getDurationMinute() != $serviceEdited->getDurationMinute() || $serviceLatestVersion->isActive() != $serviceEdited->isActive()){
+                $em->persist($serviceEdited);
                 $em->flush();
             }
-
         }
+        return $this->render('service/new.html.twig', ['form' => $form->createView()]);
     }
 }

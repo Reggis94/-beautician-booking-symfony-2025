@@ -1,20 +1,22 @@
 <table>
-<thead>
-    <th>
-        Service name
-    <th>
-    <th>
-        Actions
-    </th>
-</thead>
-{% for service in services %}
-    <tr>
-        <td>{{ service.name }}</td>
-    </tr>
-    <tr>
-        <td>Show</td>
-        <td>Edit</td>
-        <td>Delete</td>
-    </tr>
-{% endfor %}
+	<thead>
+		<th>Service name
+		</th>
+		<th></th>
+		<th>
+			Actions
+		</th>
+	</thead>
+	{% for service in services %}
+		<tr>
+			<td>{{ service.name }}</td>
+		</tr>
+		<tr>
+			<td>Show</td>
+			<td>
+				<a href="{{ path('edit_service', {'id': service.id })}}">Edit</td>
+			</td>
+			<td>Delete</td>
+		</tr>
+	{% endfor %}
 </table>

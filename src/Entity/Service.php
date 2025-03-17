@@ -54,9 +54,19 @@ class Service
     #[ORM\OneToMany(targetEntity: AppointmentService::class, mappedBy: 'service')]
     private Collection $appointmentServices;
 
+    #[ORM\ManyToOne(targetEntity: self::class, inversedBy: 'children')]
+    private ?self $original = null;
+
+    /**
+     * @var Collection<int, self>
+     */
+    #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'original')]
+    private Collection $children;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
+        $this->children = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -185,6 +195,48 @@ class Service
             // set the owning side to null (unless already changed)
             if ($appointmentService->getService() === $this) {
                 $appointmentService->setService(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getOriginal(): ?self
+    {
+        return $this->original;
+    }
+
+    public function setOriginal(?self $original): static
+    {
+        $this->original = $original;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, self>
+     */
+    public function getChildren(): Collection
+    {
+        return $this->children;
+    }
+
+    public function addChild(self $child): static
+    {
+        if (!$this->children->contains($child)) {
+            $this->children->add($child);
+            $child->setOriginal($this);
+        }
+
+        return $this;
+    }
+
+    public function removeChild(self $child): static
+    {
+        if ($this->children->removeElement($child)) {
+            // set the owning side to null (unless already changed)
+            if ($child->getOriginal() === $this) {
+                $child->setOriginal(null);
             }
         }
 

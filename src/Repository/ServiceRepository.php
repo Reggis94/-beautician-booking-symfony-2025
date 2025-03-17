@@ -26,6 +26,24 @@ class ServiceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findLatestVersion(Service $service){
+        $latestChildren = $this->getEntityManager()->createQueryBuilder()->select('s')
+            ->from(Service::class, 's')
+            ->where('s.original = :original')
+            ->setParameter('original', $service)
+            ->orderBy('s.createdAt', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult();
+
+            if($latestChildren){
+                return $latestChildren;
+            }
+
+            $original = $this->find($service->getId());
+            return $original;
+    }
+
     //    /**
     //     * @return Service[] Returns an array of Service objects
     //     */
