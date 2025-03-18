@@ -26,6 +26,25 @@ class ServiceRepository extends ServiceEntityRepository
             ->getResult();
     }
 
+    public function findAllNotDeletedLastVersionByBusiness(array $criterias = []){
+        dump($criterias['business']);
+        $services = $this->getEntityManager()->createQueryBuilder()->select('s')
+            ->from(Service::class, 's')
+            ->andWhere('s.business = :business')
+            ->andWhere('s.deletedAt IS NULL')
+            ->andWhere('s.original IS NULL')
+            ->setParameter('business', $criterias['business'])
+            ->getQuery()
+            ->getResult();
+
+        $servicesLatestVersion = [];
+
+        foreach($services as $service){
+            $servicesLatestVersion[] = $this->findLatestVersion($service);
+        }
+        return $servicesLatestVersion;
+    }
+
     public function findLatestVersion(Service $service){
         $latestChildren = $this->getEntityManager()->createQueryBuilder()->select('s')
             ->from(Service::class, 's')

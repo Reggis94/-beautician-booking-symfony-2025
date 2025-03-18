@@ -6,6 +6,9 @@ use App\Form\DataTransformer\DatetimeUtcToTimezoneTransformer;
 use App\Entity\Appointment;
 use App\Entity\Business;
 use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
+use App\Entity\Service;
+use App\Repository\ServiceRepository;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -29,6 +32,8 @@ class AppointmentType extends AbstractType
         // Assuming you have a way to get the current business ID
         $businessId = $options['business_id'];
         $business = $this->entityManager->getRepository(Business::class)->find(2);
+        $services = $this->entityManager->getRepository(Service::class)->findAllNotDeletedLastVersionByBusiness(['business' => $business]);
+        // var_dump($services);exit;
         //Simulate that the business has a timezone of 'America/New_York'
         dump($business);
         $timezone = $business ? $business->getTimezoneName() : 'UTC';
@@ -45,7 +50,7 @@ class AppointmentType extends AbstractType
             'input' => 'datetime_immutable',
         ]);
         $builder->get('startDateTimeUtc')->addModelTransformer(new DatetimeUtcToTimezoneTransformer($timezone));
-        $builder->add('appointmentServices');
+        $builder->add('appointmentServices', EntityType::class, ['mapped' => false, 'class' => Service::class, 'choice_label' => 'name', 'choices' => $services, 'multiple' => true, 'expanded' => true]);
         $builder->add('save', SubmitType::class);
     }
 

@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Appointment;
 use App\Entity\Business;
+use App\Entity\AppointmentService;
+use App\Entity\Service;
 use App\Form\Type\AppointmentType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -40,8 +42,18 @@ class AppointmentController extends AbstractController
             $appointment->setCreatedAt(new \DateTimeImmutable(), "UTC");
             $appointment->setTimezone($business->getTimezoneName());
             $appointment->setBusiness($business);
+            // var_dump($form->getData());exit;
+            $appointmentServicesSelected = $form->get('appointmentServices')->getData();
+            // var_dump($form->get('appointmentServices')->getData());exit;
+            $appointmentService = new AppointmentService();
+            foreach($appointmentServicesSelected as $s){
+                $appointmentService->setAppointment($appointment);
+                $appointmentService->setService($s);
+                $em->persist($appointmentService);
+            }
             $em->persist($appointment);
             $em->flush();
+            // exit;
             return $this->redirectToRoute('business_dashboard');
         }
         return $this->render('appointment/new.html.twig', ['form' => $form->createView()]);

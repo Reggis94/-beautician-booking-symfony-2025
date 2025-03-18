@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Business;
 use App\Entity\Service;
 use App\Form\Type\ServiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -38,19 +39,23 @@ class ServiceController extends AbstractController
         //TODO get business by current user
         //Get business
         $business = $em->getRepository(Business::class)->find(2);
-        $services = $em->getRepository(Service::class)->findAllByBusiness(['business' => $business]);
-        return $this->render('service/list.html.twig', ['services' => $services]);
+        $servicesActive = $em->getRepository(Service::class)->findAllNotDeletedLastVersionByBusiness(['business' => $business]);
+        return $this->render('service/list.html.twig', ['services' => $servicesActive]);
     }
 
     #[Route('service/edit/{id}', name:'edit_service')]
     public function editService($id, Request $request, EntityManagerInterface $em){
         $service = $em->getRepository(Service::class)->find($id);
+
+        if(!$service){
+            throw $this->createNotFoundException('Service does not exist');
+        }
         //TODO: Check if service is most recent else get most recent service
         $serviceLatestVersion = $em->getRepository(Service::class)->findLatestVersion($service);
         var_dump($serviceLatestVersion->getId());
         // exit;
         //TODO: Check if current object is not deleted. Then throw NotFoundHttpException
-        if(!$serviceLatestVersion || $serviceLatestVersion->getDeletedAt()){
+        if(!$serviceLatestVersion || $service->getDeletedAt()){
             throw $this->createNotFoundException('Service not found');
         }
         //TODO: Check if current object has an original service. If it has one, then get most previous service.
@@ -85,5 +90,27 @@ class ServiceController extends AbstractController
             }
         }
         return $this->render('service/new.html.twig', ['form' => $form->createView()]);
+    }
+    
+    #[Route('service/delete/{id}', name:'delete_service')]
+    public function deleteService($id, Request $request, EntityManagerInterface $em){
+        $service = $em->getRepository(Service::class)->find($id);
+        if(!$service){
+            throw $this->createNotFoundException('Service does not exist');
+        }
+        $serviceLatestVersion = $em->getRepository(Service::class)->findLatestVersion($service);
+        if(!$serviceLatestVersion || $service->getDeletedAt()){
+            throw $this->createNotFoundException('Service not found');
+        }
+        $form = $this->createFormBuilder()
+            ->add('delete', SubmitType::class, ['label' => 'Delete'])
+            ->getForm();
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()){
+            $service->setDeletedAt(new \DateTimeImmutable("now", new \DateTimeZone('UTC')));
+            $em->persist($service);
+            $em->flush();
+        }
+        return $this->render('service/delete.html.twig', ['form' => $form->createView()]);
     }
 }

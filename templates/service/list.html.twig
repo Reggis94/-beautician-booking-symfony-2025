@@ -14,9 +14,12 @@
 		<tr>
 			<td>Show</td>
 			<td>
-				<a href="{{ path('edit_service', {'id': service.id })}}">Edit</td>
+				<a href="{{ path('edit_service', {'id': service.original.id|default(service.id) })}}">Edit</td>
 			</td>
-			<td>Delete</td>
+			<td>
+				<a href="{{ path('delete_service', {'id': service.original.id|default(service.id) })}}">
+					Delete</td>
+			</td>
 		</tr>
 	{% endfor %}
 </table>
