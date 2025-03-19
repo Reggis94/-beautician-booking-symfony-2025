@@ -68,6 +68,12 @@ class Appointment
     #[ORM\JoinColumn(nullable: false)]
     private ?Business $business = null;
 
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $deletedAt = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $canceledAt = null;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
@@ -301,6 +307,30 @@ class Appointment
     public function setBusiness(?Business $business): static
     {
         $this->business = $business;
+
+        return $this;
+    }
+
+    public function getDeletedAt(): ?\DateTimeImmutable
+    {
+        return $this->deletedAt;
+    }
+
+    public function setDeletedAt(?\DateTimeImmutable $deletedAt): static
+    {
+        $this->deletedAt = $deletedAt;
+
+        return $this;
+    }
+
+    public function getCanceledAt(): ?\DateTimeImmutable
+    {
+        return $this->canceledAt;
+    }
+
+    public function setCanceledAt(?\DateTimeImmutable $canceledAt): static
+    {
+        $this->canceledAt = $canceledAt;
 
         return $this;
     }

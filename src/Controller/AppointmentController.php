@@ -15,6 +15,23 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AppointmentController extends AbstractController
 {
+    #[Route('business/appointment/show', name: 'business_all_appointment')]
+    public function appointmentAll(EntityManagerInterface $em): Response
+    {
+        //TODO: Add voter to check if the user is the owner of the appointment
+        $business = $em->getRepository(Business::class)->find(2);
+        //TODO: Get latest version of each appointment where deletedAt is null
+        $appointment = $em->getRepository(Appointment::class)->findBy(['business' => $business]);
+
+        if (!$appointment) {
+            throw $this->createNotFoundException('No appointment found for id ' . $id);
+        }
+
+        return $this->render('appointment/list.html.twig', [
+            'appointment' => $appointment,
+        ]);
+    }
+
     #[Route('business/appointment/{id}/show', name: 'business_show_appointment')]
     public function appointmentShow(int $id, EntityManagerInterface $em): Response
     {
@@ -72,6 +89,20 @@ class AppointmentController extends AbstractController
 
         $appointmentForm->handleRequest($request);
         if ($appointmentForm->isSubmitted() && $appointmentForm->isValid()) {
+            $appointment = $appointmentForm->getData();
+            // $appointment->setUpdatedAt(new \DateTimeImmutable(), "UTC");
+            $appointmentServicesSelected = $appointmentForm->get('appointmentServices')->getData();
+
+            foreach($appointment->getAppointmentServices() as $as){
+                $em->remove($as);
+            }
+
+            foreach($appointmentServicesSelected as $s){
+                $appointmentService = new AppointmentService();
+                $appointmentService->setAppointment($appointment);
+                $appointmentService->setService($s);
+                $em->persist($appointmentService);
+            }
             //Call API
             dump('VALIDE');
             $em->flush();
@@ -83,5 +114,51 @@ class AppointmentController extends AbstractController
         return $this->render('appointment/edit_by_business.html.twig', [
             'form' => $appointmentForm->createView(),
         ]);
+    }
+
+    #[Route('/business/appointment/{id}/delete', name: 'business_delete_appointment')]
+    public function businessDelete(int $id, EntityManagerInterface $em, Request $request): Response
+    {
+        $appointment = $em->getRepository(Appointment::class)->find($id);
+
+        if (!$appointment) {
+            throw $this->createNotFoundException('No appointment found for id ' . $id);
+        }
+
+        $this->createFormBuilder()
+            ->setAction($this->generateUrl('business_delete_appointment', ['id' => $id]))
+            ->setMethod('DELETE')
+            ->getForm()
+            ->handleRequest($request);
+
+            if($form->isSubmitted && $form->isValid()){
+                $appointment->setDeletedAt(new \DateTimeImmutable(), "UTC");
+                $em->flush();
+            }
+
+        return $this->redirectToRoute('business_all_appointment');
+    }
+
+    #[Route('/business/appointment/{id}/cancel', name: 'business_cancel_appointment')]
+    public function businessCancel(int $id, EntityManagerInterface $em, Request $request): Response
+    {
+        $appointment = $em->getRepository(Appointment::class)->find($id);
+
+        if (!$appointment) {
+            throw $this->createNotFoundException('No appointment found for id ' . $id);
+        }
+
+        $this->createFormBuilder()
+            ->setAction($this->generateUrl('business_cancel_appointment', ['id' => $id]))
+            ->setMethod('POST')
+            ->getForm()
+            ->handleRequest($request);
+
+        if($form->isSubmitted && $form->isValid()){
+            $appointment->setCanceledAt(new \DateTimeImmutable(), "UTC");
+            $em->flush();
+        }
+
+        return $this->redirectToRoute('business_all_appointment');
     }
 }

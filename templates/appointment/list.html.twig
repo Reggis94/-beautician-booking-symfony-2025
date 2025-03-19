@@ -1,0 +1,14 @@
+{% for a in appointment %}
+	<p>{{ a.startDateTimeUtc|date('m/d/y h:i A', a.timezone)}}</p>
+	<p>{{ a.firstName }}
+		{{ a.lastName }}</p>
+	<a href="{{path('business_show_appointment', {'id': a.id})}}">
+		<button class="btn btn-primary">View Appointment</button>
+	</a>
+	<a href="{{path('business_edit_appointment', {'id': a.id})}}">
+		<button class="btn btn-primary">Edit Appointment</button>
+	</a>
+	<a href="{{path('business_delete_appointment', {'id': a.id})}}">
+		<button class="btn btn-primary">Cancel Appointment</button>
+	</a>
+{% endfor %}

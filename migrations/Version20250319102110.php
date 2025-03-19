@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250312142528 extends AbstractMigration
+final class Version20250319102110 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,16 +20,24 @@ final class Version20250312142528 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
+        $this->addSql('ALTER TABLE appointment ADD deleted_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
+        $this->addSql('ALTER TABLE appointment ADD canceled_at TIMESTAMP(0) WITHOUT TIME ZONE DEFAULT NULL');
         // $this->addSql('ALTER TABLE appointment ALTER first_name SET NOT NULL');
         // $this->addSql('ALTER TABLE appointment ALTER last_name SET NOT NULL');
         // $this->addSql('ALTER TABLE appointment ALTER email SET NOT NULL');
         // $this->addSql('ALTER TABLE appointment ALTER duration_minutes SET NOT NULL');
+        $this->addSql('COMMENT ON COLUMN appointment.deleted_at IS \'(DC2Type:datetime_immutable)\'');
+        $this->addSql('COMMENT ON COLUMN appointment.canceled_at IS \'(DC2Type:datetime_immutable)\'');
+        // $this->addSql('ALTER TABLE appointment_service ALTER price SET NOT NULL');
     }
 
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql('CREATE SCHEMA public');
+        $this->addSql('ALTER TABLE appointment_service ALTER price DROP NOT NULL');
+        $this->addSql('ALTER TABLE appointment DROP deleted_at');
+        $this->addSql('ALTER TABLE appointment DROP canceled_at');
         $this->addSql('ALTER TABLE appointment ALTER first_name DROP NOT NULL');
         $this->addSql('ALTER TABLE appointment ALTER last_name DROP NOT NULL');
         $this->addSql('ALTER TABLE appointment ALTER email DROP NOT NULL');

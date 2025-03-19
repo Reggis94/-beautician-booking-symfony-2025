@@ -21,10 +21,10 @@ final class Version20250312142806 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql('ALTER TABLE appointment ADD business_id INT NOT NULL');
-        $this->addSql('ALTER TABLE appointment ALTER first_name SET NOT NULL');
-        $this->addSql('ALTER TABLE appointment ALTER last_name SET NOT NULL');
-        $this->addSql('ALTER TABLE appointment ALTER email SET NOT NULL');
-        $this->addSql('ALTER TABLE appointment ALTER duration_minutes SET NOT NULL');
+        // $this->addSql('ALTER TABLE appointment ALTER first_name SET NOT NULL');
+        // $this->addSql('ALTER TABLE appointment ALTER last_name SET NOT NULL');
+        // $this->addSql('ALTER TABLE appointment ALTER email SET NOT NULL');
+        // $this->addSql('ALTER TABLE appointment ALTER duration_minutes SET NOT NULL');
         $this->addSql('ALTER TABLE appointment ADD CONSTRAINT FK_FE38F844A89DB457 FOREIGN KEY (business_id) REFERENCES business (id) NOT DEFERRABLE INITIALLY IMMEDIATE');
         $this->addSql('CREATE INDEX IDX_FE38F844A89DB457 ON appointment (business_id)');
     }
