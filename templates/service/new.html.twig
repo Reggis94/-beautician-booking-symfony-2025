@@ -1,1 +1,6 @@
-{{ form(form) }}
+{{ form_start(form) }}
+<div class="my-custom-class-for-errors">
+	Errors are displayed here
+	{{ dump(form_errors(form)) }}
+</div>
+{{ form_end(form) }}

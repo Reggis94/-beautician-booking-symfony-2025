@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 
 #[ORM\Entity(repositoryClass: ServiceRepository::class)]
@@ -28,6 +29,7 @@ class Service
     private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
+    #[Assert\Range(min: 1, max: 1440, notInRangeMessage: 'Duration of service must be at least 1 minute and at most 24 hours')]
     #[Groups(['service.client'])]
     private ?int $durationMinute = null;
 

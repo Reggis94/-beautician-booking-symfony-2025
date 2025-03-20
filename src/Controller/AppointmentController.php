@@ -161,4 +161,35 @@ class AppointmentController extends AbstractController
 
         return $this->redirectToRoute('business_all_appointment');
     }
+    //TODO: Make that route as API for later
+    #[Route('business/check-overlapping-appointment/{startDate}/{startTime}/{endDate}/{endTime}', name: 'business_check_overlapping_appointment', requirements: [
+        'startDate' => '\d{4}-\d{2}-\d{2}',
+        'startTime' => '\d{2}:\d{2}',
+        'endDate' => '\d{4}-\d{2}-\d{2}',
+        'endTime' => '\d{2}:\d{2}'
+    ])]
+    public function checkOverlappingAppointment(string $startDate, string $startTime, string $endDate, string $endTime, EntityManagerInterface $em): Response
+    {
+        dump($startDate, $startTime, $endDate, $endTime);exit;
+        // $startDateUtc = $startDate->format('Y-m-d');
+        
+        //TODO: Get current business by user
+        // $business = $this->getUser()->getBusiness();
+        $business = $em->getRepository(Business::class)->find(2);
+        // $startDateTimeUtc = strok('T')
+        $appointments = $em->getRepository(Appointment::class)->findOverlapping(['business' => $business, 'startDateTimeUtc' => $startDateTimeUtc, 'endDateTimeUtc' => $endDateTimeUtc]);
+        exit;
+        $appointments = array_map(function($appointment){
+            return [
+                'id' => $appointment->getId(),
+                'lastName' => $appointment->getLastName(),
+                'startDateTimeUtc' => $appointment->getStartDateTimeUtc(),
+                'startDateTimeConvertedToTimeZone' => $appointment->getStartDateTimeConvertedToTimeZone(),
+                'endDateTimeUtc' => $appointment->getEndDateTimeUtc(),
+                'endDateTimeConvertedToTimeZone' => $appointment->getEndDateTimeConvertedToTimeZone()
+            ];
+        }, $appointments);
+        //TODO: Use serializer group
+        return $this->json([$appointments], 200);
+    }
 }

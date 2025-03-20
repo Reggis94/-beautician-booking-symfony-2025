@@ -94,6 +94,38 @@ class AppointmentRepository extends ServiceEntityRepository
         return $upcomingAppointments;
     }
 
+    public function findOverlapping(array $criteria): array
+    {
+        $conn = $this->getEntityManager()->getConnection();
+        $sql = '
+            WITH existing_appointments AS (
+                SELECT 
+                    a.id,
+                    a.business_id,
+                    a.start_time_utc,
+                    a.first_name,
+                    a.last_name,
+                    (a.start_time_utc + INTERVAL \'1 minute\' * SUM(s.duration_minutes)) AS end_time_utc
+                FROM appointment a
+                JOIN appointment_service aps ON aps.appointment_id = a.id
+                JOIN service s ON s.id = aps.service_id
+                WHERE a.business_id = :businessId
+                AND a.canceled_at IS NULL
+                AND a.deleted_at IS NULL
+                GROUP BY a.id
+            )
+            SELECT *
+            FROM existing_appointments ea
+            WHERE 
+                ea.start_time_utc < :newEndTime
+                AND ea.end_time_utc > :newStartTime;
+        ';
+        $stmt = $conn->executeQuery($sql, ['startDateTimeUtc' => $criteria['startDateTimeUtc'], 'endDateTimeUtc' => $criteria['endDateTimeUtc'], 'businessId' => $criteria['business']->getId()]); 
+        $appointmentIds = array_column($stmt->fetchAllAssociative(), 'id');
+
+        return $this->findBy(['id' => $appointmentIds]);
+    }
+
     // To use when groups will be used to get the correct values to be displayed
     // public function findUpcomingByBusiness(array $criteria): array
     // {
