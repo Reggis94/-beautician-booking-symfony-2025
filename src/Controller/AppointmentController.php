@@ -170,26 +170,49 @@ class AppointmentController extends AbstractController
     ])]
     public function checkOverlappingAppointment(string $startDate, string $startTime, string $endDate, string $endTime, EntityManagerInterface $em): Response
     {
-        dump($startDate, $startTime, $endDate, $endTime);exit;
-        // $startDateUtc = $startDate->format('Y-m-d');
-        
-        //TODO: Get current business by user
-        // $business = $this->getUser()->getBusiness();
+        //TODO: Check current session else return 401
         $business = $em->getRepository(Business::class)->find(2);
-        // $startDateTimeUtc = strok('T')
-        $appointments = $em->getRepository(Appointment::class)->findOverlapping(['business' => $business, 'startDateTimeUtc' => $startDateTimeUtc, 'endDateTimeUtc' => $endDateTimeUtc]);
-        exit;
+
+        // dump($startDate, $startTime, $endDate, $endTime);
+        $startNewAppointmentStringDateTime = $startDate . ' ' . $startTime;
+        $endNewAppointmentStringDateTime = $endDate . ' ' . $endTime;
+        // dump($startNewAppointmentStringDateTime, $endNewAppointmentStringDateTime);
+
+        //Convert from business timezone to UTC
+
+        $startNewAppointmentStringDateTimeBusinessTimezone = new \DateTime($startNewAppointmentStringDateTime, new \DateTimeZone($business->getTimezoneName()));
+        $startNewAppointmentStringDateTimeUtc = $startNewAppointmentStringDateTimeBusinessTimezone->setTimezone(new \DateTimeZone('UTC'));
+        $endNewAppointmentStringDateTimeBusinessTimezone = new \DateTime($endNewAppointmentStringDateTime, new \DateTimeZone($business->getTimezoneName()));
+        $endNewAppointmentStringDateTimeUtc = $endNewAppointmentStringDateTimeBusinessTimezone->setTimezone(new \DateTimeZone('UTC'));
+        // dump($startNewAppointmentStringDateTimeBusinessTimezone->format('Y-m-d H:i:s'), $endNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s'));
+        
+        $appointments = $em->getRepository(Appointment::class)->findOverlapping(['business' => $business, 'startDateTimeUtc' => $startNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s'), 'endDateTimeUtc' => $endNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s')]);
+        // dump(array_column($appointments, 'id'));
+        // exit;
+
+        //TODO: In case it is an entity
+        // $appointments = array_map(function($appointment){
+        //     return [
+        //         'id' => $appointment->getId(),
+        //         'lastName' => $appointment->getLastName(),
+        //         'startDateTimeUtc' => $appointment->getStartDateTimeUtc(),
+        //         'startDateTimeConvertedToTimeZone' => $appointment->getStartDateTimeConvertedToTimeZone(),
+        //         'endDateTimeUtc' => $appointment->getEndDateTimeUtc(),
+        //         'endDateTimeConvertedToTimeZone' => $appointment->getEndDateTimeConvertedToTimeZone()
+        //     ];
+        // }, $appointments);
+
+        //For now returning query columns
         $appointments = array_map(function($appointment){
             return [
-                'id' => $appointment->getId(),
-                'lastName' => $appointment->getLastName(),
-                'startDateTimeUtc' => $appointment->getStartDateTimeUtc(),
-                'startDateTimeConvertedToTimeZone' => $appointment->getStartDateTimeConvertedToTimeZone(),
-                'endDateTimeUtc' => $appointment->getEndDateTimeUtc(),
-                'endDateTimeConvertedToTimeZone' => $appointment->getEndDateTimeConvertedToTimeZone()
+                'id' => $appointment['id'],
+                'lastName' => $appointment['last_name'],
+                'startDateTimeUtc' => $appointment['start_date_time_utc'],
+                'endDateTimeUtc' => $appointment['end_date_time_utc']
             ];
         }, $appointments);
+
         //TODO: Use serializer group
-        return $this->json([$appointments], 200);
+        return $this->json(['appointments' => $appointments], 200);
     }
 }

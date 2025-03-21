@@ -33,6 +33,7 @@ class ServiceType extends AbstractType{
                 },
                 function($durationAsDateTime){
                     dump(($durationAsDateTime->format('H') * 60) + $durationAsDateTime->format('i'));
+                    //TODO: invalid message if duration is not in range
                     return ($durationAsDateTime->format('H') * 60) + $durationAsDateTime->format('i');
                 }
             ));

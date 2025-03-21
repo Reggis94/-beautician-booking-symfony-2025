@@ -102,10 +102,10 @@ class AppointmentRepository extends ServiceEntityRepository
                 SELECT 
                     a.id,
                     a.business_id,
-                    a.start_time_utc,
+                    a.start_date_time_utc,
                     a.first_name,
                     a.last_name,
-                    (a.start_time_utc + INTERVAL \'1 minute\' * SUM(s.duration_minutes)) AS end_time_utc
+                    (a.start_date_time_utc + INTERVAL \'1 minute\' * SUM(s.duration_minute)) AS end_date_time_utc
                 FROM appointment a
                 JOIN appointment_service aps ON aps.appointment_id = a.id
                 JOIN service s ON s.id = aps.service_id
@@ -117,13 +117,15 @@ class AppointmentRepository extends ServiceEntityRepository
             SELECT *
             FROM existing_appointments ea
             WHERE 
-                ea.start_time_utc < :newEndTime
-                AND ea.end_time_utc > :newStartTime;
+                ea.start_date_time_utc <= :newEndTime
+                AND ea.end_date_time_utc >= :newStartTime;
         ';
-        $stmt = $conn->executeQuery($sql, ['startDateTimeUtc' => $criteria['startDateTimeUtc'], 'endDateTimeUtc' => $criteria['endDateTimeUtc'], 'businessId' => $criteria['business']->getId()]); 
-        $appointmentIds = array_column($stmt->fetchAllAssociative(), 'id');
-
-        return $this->findBy(['id' => $appointmentIds]);
+        $stmt = $conn->executeQuery($sql, ['newStartTime' => $criteria['startDateTimeUtc'], 'newEndTime' => $criteria['endDateTimeUtc'], 'businessId' => $criteria['business']->getId()]); 
+        return $stmt->fetchAllAssociative();
+        // $appointmentIds = array_column($stmt->fetchAllAssociative(), 'id');
+        // dump($appointmentIds);
+        // // exit;
+        // return $this->findBy(['id' => $appointmentIds]);
     }
 
     // To use when groups will be used to get the correct values to be displayed
