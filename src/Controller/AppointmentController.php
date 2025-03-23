@@ -7,11 +7,13 @@ use App\Entity\Business;
 use App\Entity\AppointmentService;
 use App\Entity\Service;
 use App\Form\Type\AppointmentType;
+use App\Service\AppointmentOverlapChecker;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Form\FormError;
 
 class AppointmentController extends AbstractController
 {
@@ -48,7 +50,7 @@ class AppointmentController extends AbstractController
     }
 
     #[Route('business/appointment/new', name: 'business_new_appointment')]
-    public function businessNew(Request $request, EntityManagerInterface $em){
+    public function businessNew(Request $request, EntityManagerInterface $em, AppointmentOverlapChecker $appointmentOverlapChecker): Response{
         //TODO: Get current business
         //$business = $this->getUser()->getBusiness();
         $business = $em->getRepository(Business::class)->find(2);
@@ -61,7 +63,15 @@ class AppointmentController extends AbstractController
             $appointment->setBusiness($business);
             // var_dump($form->getData());exit;
             $appointmentServicesSelected = $form->get('appointmentServices')->getData();
-            // var_dump($form->get('appointmentServices')->getData());exit;
+            // dump($form->get('appointmentServices')->getData()[0]->getId());
+            $appointmentOverlap = $appointmentOverlapChecker->checkOverlap($appointment, $business, $appointmentServicesSelected);
+            if($appointmentOverlap){
+                //TODO: Set an error for the form
+                $form->addError(new FormError('The appointment overlaps with another appointment'));
+                return $this->render('appointment/new.html.twig', ['form' => $form->createView(), 'appointmentOverlap' => $appointmentOverlap]);
+            }
+
+            exit;
             $appointmentService = new AppointmentService();
             foreach($appointmentServicesSelected as $s){
                 $appointmentService->setAppointment($appointment);

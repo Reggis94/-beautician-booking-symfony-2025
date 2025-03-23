@@ -1,1 +1,6 @@
+{{ include('base.html.twig') }}
 {{ form(form) }}
+	{% block javascripts %}
+		{{ importmap() }}
+		<script type="module" src="{{ asset('ajax-overlapping-appointment.js') }}"></script>
+	{% endblock %}
