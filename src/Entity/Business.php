@@ -63,6 +63,12 @@ class Business
     #[ORM\OneToMany(targetEntity: Appointment::class, mappedBy: 'business')]
     private Collection $appointments;
 
+    #[ORM\ManyToOne(inversedBy: 'businesses')]
+    private ?User $businessUser = null;
+
+    #[ORM\Column(nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
     public function __construct()
     {
         $this->services = new ArrayCollection();
@@ -288,6 +294,30 @@ class Business
                 $appointment->setBusiness(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getBusinessUser(): ?User
+    {
+        return $this->businessUser;
+    }
+
+    public function setBusinessUser(?User $businessUser): static
+    {
+        $this->businessUser = $businessUser;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
 
         return $this;
     }
