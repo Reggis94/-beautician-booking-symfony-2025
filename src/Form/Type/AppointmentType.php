@@ -33,12 +33,9 @@ class AppointmentType extends AbstractType
         $businessId = $options['business_id'];
         $business = $this->entityManager->getRepository(Business::class)->find(2);
         $services = $this->entityManager->getRepository(Service::class)->findAllNotDeletedLastVersionByBusiness(['business' => $business]);
-        // var_dump($services);exit;
         //Simulate that the business has a timezone of 'America/New_York'
-        dump($business);
         $timezone = $business ? $business->getTimezoneName() : 'UTC';
-        dump($timezone);
-        // exit;
+
         $builder->add('firstName', TextType::class, ['required' => false]);
         $builder->add('lastName', TextType::class, ['required' => true]);
         $builder->add('phoneNumber', TextType::class, ['required' => false]);

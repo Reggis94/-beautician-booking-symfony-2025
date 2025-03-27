@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use App\Repository\UserRepository;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: "`user`")] // Change table name
@@ -164,6 +165,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface{
                 $business->setBusinessUser(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getValidatedRegistrationCodeAt(): ?\DateTime
+    {
+        return $this->validatedRegistrationCodeAt;
+    }
+
+    public function setValidatedRegistrationCodeAt(?\DateTime $validatedRegistrationCodeAt): self
+    {
+        $this->validatedRegistrationCodeAt = $validatedRegistrationCodeAt;
 
         return $this;
     }

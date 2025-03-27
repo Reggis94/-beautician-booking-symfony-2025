@@ -19,7 +19,6 @@ class ServiceController extends AbstractController
         $form = $this->createForm(ServiceType::class, $service);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
-            dump('VALIDE');
             $service = $form->getData();
             // $service->setBusiness($this->getUser()->getBusiness());
             //Simulation of attributing a business
@@ -52,8 +51,7 @@ class ServiceController extends AbstractController
         }
         //TODO: Check if service is most recent else get most recent service
         $serviceLatestVersion = $em->getRepository(Service::class)->findLatestVersion($service);
-        var_dump($serviceLatestVersion->getId());
-        // exit;
+
         //TODO: Check if current object is not deleted. Then throw NotFoundHttpException
         if(!$serviceLatestVersion || $service->getDeletedAt()){
             throw $this->createNotFoundException('Service not found');
@@ -77,12 +75,7 @@ class ServiceController extends AbstractController
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
             $serviceEdited = $form->getData();
-            // dump($serviceOriginal->getName(), $service->getName());
-            // exit;
             //Check if the service has been edited
-            //Dump the original service and the edited service
-            dump($serviceLatestVersion, $serviceEdited);
-            // exit;
             if($serviceLatestVersion->getName() != $serviceEdited->getName() || $serviceLatestVersion->getDescription() != $serviceEdited->getDescription() 
             || $serviceLatestVersion->getPrice() != $serviceEdited->getPrice() || $serviceLatestVersion->getDurationMinute() != $serviceEdited->getDurationMinute() || $serviceLatestVersion->isActive() != $serviceEdited->isActive()){
                 $em->persist($serviceEdited);

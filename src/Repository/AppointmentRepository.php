@@ -32,7 +32,6 @@ class AppointmentRepository extends ServiceEntityRepository
         ';
 
         $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
-        // dump($stmt->fetchAllAssociative());
         $appointmentsFetchAssoc = $stmt->fetchAllAssociative();
 
         $appointments = [];
@@ -40,10 +39,6 @@ class AppointmentRepository extends ServiceEntityRepository
             $a = $this->find($appointment['id']);
             $appointments[] = $a;
         }
-
-        if($appointments){
-            dump($appointments[0]->getId());
-        };
         return $appointments;
     }
 
@@ -79,7 +74,6 @@ class AppointmentRepository extends ServiceEntityRepository
         // dump($currentDateTime->format('Y-m-d H:i:s'), $criteria['business']->getId());
         // exit;
         $stmt = $conn->executeQuery($sql, ['currentDateTime' => $currentDateTime->format('Y-m-d H:i:s'), 'businessId' => $criteria['business']->getId()]); 
-        // dump($stmt->fetchAllAssociative());
         $upcomingAppointmentsFetchAssoc = $stmt->fetchAllAssociative();
 
         $upcomingAppointments = [];
@@ -87,10 +81,6 @@ class AppointmentRepository extends ServiceEntityRepository
             $a = $this->find($appointment['id']);
             $upcomingAppointments[] = $a;
         }
-
-        if($upcomingAppointments){
-            dump($upcomingAppointments[0]->getId());
-        };
         return $upcomingAppointments;
     }
 

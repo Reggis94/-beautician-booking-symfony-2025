@@ -28,11 +28,9 @@ class ServiceType extends AbstractType{
                 function($durationAsInt){
                     $hours = floor($durationAsInt / 60);
                     $minutes = $durationAsInt % 60;
-                    // dump($durationAsInt, $hours, $minutes);
                     return (new \DateTime())->setTime($hours, $minutes);
                 },
                 function($durationAsDateTime){
-                    dump(($durationAsDateTime->format('H') * 60) + $durationAsDateTime->format('i'));
                     //TODO: invalid message if duration is not in range
                     return ($durationAsDateTime->format('H') * 60) + $durationAsDateTime->format('i');
                 }

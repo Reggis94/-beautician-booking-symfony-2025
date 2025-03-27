@@ -18,11 +18,9 @@ class ServiceController extends AbstractController
     {
         // Get all the available services
 
-        // var_dump($businessId);
         $business = $entityManager->getRepository(Business::class)->find($businessId);
         $services = $entityManager->getRepository(Service::class)->findBy(['business' => $business]);
-        // var_dump($this->json([]));
-        // var_dump($business);
+
         $data = [
             'businessId' => $businessId,
             'business' => $business,

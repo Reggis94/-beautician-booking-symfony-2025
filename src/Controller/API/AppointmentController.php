@@ -80,7 +80,6 @@ class AppointmentController extends AbstractController
         //Simulate business timezone
         $businessTimezone = 'America/New_York';
 
-        // dump($_POST);
         //Convert to UTC time
         $dateTime = new \DateTime($_POST['date'] . ' ' . $_POST['time'], new \DateTimeZone($businessTimezone));
         $dateTimeUTC = $dateTime->setTimezone(new \DateTimeZone('UTC'));

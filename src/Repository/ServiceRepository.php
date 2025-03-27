@@ -17,7 +17,6 @@ class ServiceRepository extends ServiceEntityRepository
     }
 
     public function findAllByBusiness(array $criterias = []){
-        dump($criterias['business']);
         return $this->getEntityManager()->createQueryBuilder()->select('s')
             ->from(Service::class, 's')
             ->andWhere('s.business = :business')
@@ -27,7 +26,6 @@ class ServiceRepository extends ServiceEntityRepository
     }
 
     public function findAllNotDeletedLastVersionByBusiness(array $criterias = []){
-        dump($criterias['business']);
         $services = $this->getEntityManager()->createQueryBuilder()->select('s')
             ->from(Service::class, 's')
             ->andWhere('s.business = :business')

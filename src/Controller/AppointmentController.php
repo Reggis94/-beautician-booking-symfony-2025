@@ -61,9 +61,7 @@ class AppointmentController extends AbstractController
             $appointment->setCreatedAt(new \DateTimeImmutable(), "UTC");
             $appointment->setTimezone($business->getTimezoneName());
             $appointment->setBusiness($business);
-            // var_dump($form->getData());exit;
             $appointmentServicesSelected = $form->get('appointmentServices')->getData();
-            // dump($form->get('appointmentServices')->getData()[0]->getId());
             $appointmentOverlap = $appointmentOverlapChecker->checkOverlap($appointment, $business, $appointmentServicesSelected);
             if($appointmentOverlap){
                 //TODO: Set an error for the form
@@ -80,7 +78,6 @@ class AppointmentController extends AbstractController
             }
             $em->persist($appointment);
             $em->flush();
-            // exit;
             return $this->redirectToRoute('business_dashboard');
         }
         return $this->render('appointment/new.html.twig', ['form' => $form->createView()]);
@@ -114,9 +111,7 @@ class AppointmentController extends AbstractController
                 $em->persist($appointmentService);
             }
             //Call API
-            dump('VALIDE');
             $em->flush();
-            // exit;
             return $this->redirectToRoute('appointment_success');
         }
         
@@ -183,10 +178,8 @@ class AppointmentController extends AbstractController
         //TODO: Check current session else return 401
         $business = $em->getRepository(Business::class)->find(2);
 
-        // dump($startDate, $startTime, $endDate, $endTime);
         $startNewAppointmentStringDateTime = $startDate . ' ' . $startTime;
         $endNewAppointmentStringDateTime = $endDate . ' ' . $endTime;
-        // dump($startNewAppointmentStringDateTime, $endNewAppointmentStringDateTime);
 
         //Convert from business timezone to UTC
 
@@ -194,11 +187,8 @@ class AppointmentController extends AbstractController
         $startNewAppointmentStringDateTimeUtc = $startNewAppointmentStringDateTimeBusinessTimezone->setTimezone(new \DateTimeZone('UTC'));
         $endNewAppointmentStringDateTimeBusinessTimezone = new \DateTime($endNewAppointmentStringDateTime, new \DateTimeZone($business->getTimezoneName()));
         $endNewAppointmentStringDateTimeUtc = $endNewAppointmentStringDateTimeBusinessTimezone->setTimezone(new \DateTimeZone('UTC'));
-        // dump($startNewAppointmentStringDateTimeBusinessTimezone->format('Y-m-d H:i:s'), $endNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s'));
         
         $appointments = $em->getRepository(Appointment::class)->findOverlapping(['business' => $business, 'startDateTimeUtc' => $startNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s'), 'endDateTimeUtc' => $endNewAppointmentStringDateTimeUtc->format('Y-m-d H:i:s')]);
-        // dump(array_column($appointments, 'id'));
-        // exit;
 
         //TODO: In case it is an entity
         // $appointments = array_map(function($appointment){

@@ -23,10 +23,8 @@ class AvailabilityController extends AbstractController{
         //Create availability form
         $form = $this->createForm(WeekAvailabilityType::class);
         $form->handleRequest($request);
-        dump($form->getData());
-        dump($request->isMethod('POST'));
+
         if($form->isSubmitted() && $form->isValid()){
-            dump($form->getData());
 
             foreach($daysString as $dayString){
                 foreach($form->getData() as $key => $value){
