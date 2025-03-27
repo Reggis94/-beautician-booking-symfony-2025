@@ -43,9 +43,13 @@ class BusinessAdministrationController extends AbstractController{
 
         //     }
         // }
-        $upcomingAppointments = $em->getRepository(Appointment::class)->findUpcomingByBusiness(['business' => $em->getRepository(Business::class)->find(2)]);
 
-        $pastAppointments = $em->getRepository(Appointment::class)->findPastByBusiness(['business' => $em->getRepository(Business::class)->find(2)]);
+        $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
+        // dump($business);
+        // dump(gettype($this->getUser()));
+        $upcomingAppointments = $em->getRepository(Appointment::class)->findUpcomingByBusiness(['business' => $business]);
+
+        $pastAppointments = $em->getRepository(Appointment::class)->findPastByBusiness(['business' => $business]);
         return $this->render('business/dashboard.html.twig', ['upcomingAppointments' => $upcomingAppointments, 'pastAppointments' => $pastAppointments]);
     }
 

@@ -21,7 +21,8 @@ class AppointmentController extends AbstractController
     public function appointmentAll(EntityManagerInterface $em): Response
     {
         //TODO: Add voter to check if the user is the owner of the appointment
-        $business = $em->getRepository(Business::class)->find(2);
+        $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
+        
         //TODO: Get latest version of each appointment where deletedAt is null
         $appointment = $em->getRepository(Appointment::class)->findBy(['business' => $business]);
 
@@ -53,7 +54,7 @@ class AppointmentController extends AbstractController
     public function businessNew(Request $request, EntityManagerInterface $em, AppointmentOverlapChecker $appointmentOverlapChecker): Response{
         //TODO: Get current business
         //$business = $this->getUser()->getBusiness();
-        $business = $em->getRepository(Business::class)->find(2);
+        $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
         $form = $this->createForm(AppointmentType::class);
         $form->handleRequest($request);
         if( $form->isSubmitted() && $form->isValid()){
@@ -69,7 +70,6 @@ class AppointmentController extends AbstractController
                 return $this->render('appointment/new.html.twig', ['form' => $form->createView(), 'appointmentOverlap' => $appointmentOverlap]);
             }
 
-            exit;
             $appointmentService = new AppointmentService();
             foreach($appointmentServicesSelected as $s){
                 $appointmentService->setAppointment($appointment);
