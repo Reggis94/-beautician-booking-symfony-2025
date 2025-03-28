@@ -16,7 +16,6 @@ security:
         login_path: app_login
         check_path: app_login
         enable_csrf: true
-        default_target_path: business_dashboard
     main:
       lazy: true
       provider: app_user_provider
@@ -24,6 +23,7 @@ security:
         login_path: app_login
         check_path: app_login
         enable_csrf: true
+        default_target_path: business_dashboard
       logout:
         path: app_logout
         # where to redirect after logout

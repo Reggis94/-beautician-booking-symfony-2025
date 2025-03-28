@@ -14,6 +14,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Form\FormError;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 class AppointmentController extends AbstractController
 {
@@ -35,14 +36,14 @@ class AppointmentController extends AbstractController
         ]);
     }
 
-    #[Route('business/appointment/{id}/show', name: 'business_show_appointment')]
-    public function appointmentShow(int $id, EntityManagerInterface $em): Response
+    #[Route('business/appointment/{appointment}/show', name: 'business_show_appointment')]
+    #[IsGranted('view', 'appointment')]
+    public function appointmentShow(Appointment $appointment, EntityManagerInterface $em): Response
     {
         //TODO: Add voter to check if the user is the owner of the appointment
-        $appointment = $em->getRepository(Appointment::class)->find($id);
-
+        // $appointment = $em->getRepository(Appointment::class)->find($id);
         if (!$appointment) {
-            throw $this->createNotFoundException('No appointment found for id ' . $id);
+            throw $this->createNotFoundException('No appointment found');
         }
 
         return $this->render('appointment/business_show.html.twig', [
@@ -83,13 +84,15 @@ class AppointmentController extends AbstractController
         return $this->render('appointment/new.html.twig', ['form' => $form->createView()]);
     }
 
-    #[Route('/business/appointment/{id}/edit', name: 'business_edit_appointment')]
-    public function businessEdit(int $id, Request $request, EntityManagerInterface $em): Response
+
+    #[Route('/business/appointment/{appointment}/edit', name: 'business_edit_appointment')]
+    #[IsGranted('edit', 'appointment')]
+    public function businessEdit(Appointment $appointment, Request $request, EntityManagerInterface $em): Response
     {
-        $appointment = $em->getRepository(Appointment::class)->find($id);
+        // $appointment = $em->getRepository(Appointment::class)->find($id);
 
         if (!$appointment) {
-            throw $this->createNotFoundException('No appointment found for id ' . $id);
+            throw $this->createNotFoundException('No appointment found');
         }
 
         $appointmentForm = $this->createForm(AppointmentType::class, $appointment);
@@ -112,7 +115,7 @@ class AppointmentController extends AbstractController
             }
             //Call API
             $em->flush();
-            return $this->redirectToRoute('appointment_success');
+            return $this->redirectToRoute('business_dashboard');
         }
         
 

@@ -12,7 +12,7 @@
 		<p>{{ a.startDateTimeUtc|date('m/d/y h:i A', a.timezone)}}</p>
 		<p>{{ a.firstName }}
 			{{ a.lastName }}</p>
-		<a href="{{path('business_show_appointment', {'id': a.id})}}">
+		<a href="{{path('business_show_appointment', {'appointment': a.id})}}">
 			<button class="btn btn-primary">View Appointment</button>
 		</a>
 	{% endfor %}
@@ -26,7 +26,7 @@
 		<p>{{ a.startDateTimeUtc|date('m/d/y h:i A', a.timezone)}}</p>
 		<p>{{ a.firstName }}
 			{{ a.lastName }}</p>
-		<a href="{{path('business_show_appointment', {'id': a.id})}}">
+		<a href="{{path('business_show_appointment', {'appointment': a.id})}}">
 			<button class="btn btn-primary">View Appointment</button>
 		</a>
 	{% endfor %}

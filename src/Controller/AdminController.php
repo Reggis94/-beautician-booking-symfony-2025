@@ -46,7 +46,6 @@ class AdminController extends AbstractController
 
             $registrationCode = bin2hex(random_bytes(5));
             $user->setRegistrationCode($registrationCode);
-            // dump($registrationCode);exit;
 
             $em->persist($user);
             $em->persist($business);
