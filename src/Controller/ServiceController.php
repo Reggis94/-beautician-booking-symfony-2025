@@ -10,19 +10,24 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use App\Security\ServiceVoter;
 
 class ServiceController extends AbstractController
 {
     #[Route('/service/new', name: 'new_service')]
     public function newService(Request $request, EntityManagerInterface $em){
+        $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
+        // dump($business);
+        if(!$business){
+            throw $this->createNotFoundException('Business does not exist');
+        }
         $service = new Service();
         $form = $this->createForm(ServiceType::class, $service);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
             $service = $form->getData();
-            // $service->setBusiness($this->getUser()->getBusiness());
+            $service->setBusiness($business);
             //Simulation of attributing a business
-            $service->setBusiness($em->getRepository(Business::class)->find(2));
             $service->setCreatedAt(new \DateTimeImmutable());
             $em->persist($service);
             $em->flush();
@@ -37,14 +42,18 @@ class ServiceController extends AbstractController
     public function listService(EntityManagerInterface $em){
         //TODO get business by current user
         //Get business
-        $business = $em->getRepository(Business::class)->find(2);
+        $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
+        if(!$business){
+            throw $this->createNotFoundException('Business does not exist');
+        }
         $servicesActive = $em->getRepository(Service::class)->findAllNotDeletedLastVersionByBusiness(['business' => $business]);
         return $this->render('service/list.html.twig', ['services' => $servicesActive]);
     }
 
-    #[Route('service/edit/{id}', name:'edit_service')]
-    public function editService($id, Request $request, EntityManagerInterface $em){
-        $service = $em->getRepository(Service::class)->find($id);
+    #[Route('service/edit/{service}', name:'edit_service')]
+    public function editService(Service $service, Request $request, EntityManagerInterface $em){
+        $this->denyAccessUnlessGranted(ServiceVoter::EDIT, $service);
+        // $service = $em->getRepository(Service::class)->find($id);
 
         if(!$service){
             throw $this->createNotFoundException('Service does not exist');

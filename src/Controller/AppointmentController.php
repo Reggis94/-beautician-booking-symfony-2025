@@ -56,7 +56,7 @@ class AppointmentController extends AbstractController
         //TODO: Get current business
         //$business = $this->getUser()->getBusiness();
         $business = $em->getRepository(Business::class)->findByBusinessUser($this->getUser())[0];
-        $form = $this->createForm(AppointmentType::class);
+        $form = $this->createForm(AppointmentType::class, null, ['business_id' => $business->getId()]);
         $form->handleRequest($request);
         if( $form->isSubmitted() && $form->isValid()){
             $appointment = $form->getData();

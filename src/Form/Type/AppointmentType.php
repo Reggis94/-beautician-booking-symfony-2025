@@ -31,7 +31,12 @@ class AppointmentType extends AbstractType
     {
         // Assuming you have a way to get the current business ID
         $businessId = $options['business_id'];
-        $business = $this->entityManager->getRepository(Business::class)->find(2);
+        // $business = $this->entityManager->getRepository(Business::class)->find(2);
+        $business = $options['business_id'] ? $this->entityManager->getRepository(Business::class)->find($businessId) : null;
+        if(!$business) {
+            throw new \InvalidArgumentException('Business not found for the given ID.');
+        }
+        
         $services = $this->entityManager->getRepository(Service::class)->findAllNotDeletedLastVersionByBusiness(['business' => $business]);
         //Simulate that the business has a timezone of 'America/New_York'
         $timezone = $business ? $business->getTimezoneName() : 'UTC';
