@@ -15,8 +15,17 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ServiceType extends AbstractType{
     public function buildForm(FormBuilderInterface $builder, array $options){
+        $categories = $options['entity_manager']->getRepository(Category::class)->findBy(['business' => $options['business'], 'deletedAt' => null]);
+
+
         $builder
             ->add('name', TextType::class)
+            ->add('category', EntityType::class, [
+                'class' => Category::class,
+                'choice_label' => 'name',
+                'placeholder' => 'Select a category',
+                'choices' => $categories
+            ])
             ->add('durationMinute', TimeType::class, ['widget' => 'choice', 'placeholder' => [
         'hour' => 'Hour', 'minute' => 'Minute'
     ],])

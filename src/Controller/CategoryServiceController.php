@@ -11,7 +11,7 @@ use Doctrine\ORM\EntityManagerInterface;
 class CategoryServiceController extends AbstractController
 {
     //TODO: Use event dispatcher to dispatch an event when a new category service is created
-    #[Route('business/category/service/new', name: 'new_category_service')]
+    // #[Route('business/category/service/new', name: 'new_category_service')]
     public function newCategoryService(Request $request, EntityManagerInterface $em){
         $form = $this->createForm(CategoryServiceType::class);
         $form->handleRequest($request);

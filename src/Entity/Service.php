@@ -65,10 +65,20 @@ class Service
     #[ORM\OneToMany(targetEntity: self::class, mappedBy: 'original')]
     private Collection $children;
 
+    #[ORM\ManyToOne(inversedBy: 'services')]
+    private ?Category $category = null;
+
+    /**
+     * @var Collection<int, Extra>
+     */
+    #[ORM\OneToMany(targetEntity: Extra::class, mappedBy: 'service')]
+    private Collection $extras;
+
     public function __construct()
     {
         $this->appointmentServices = new ArrayCollection();
         $this->children = new ArrayCollection();
+        $this->extras = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -239,6 +249,48 @@ class Service
             // set the owning side to null (unless already changed)
             if ($child->getOriginal() === $this) {
                 $child->setOriginal(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Extra>
+     */
+    public function getExtras(): Collection
+    {
+        return $this->extras;
+    }
+
+    public function addExtra(Extra $extra): static
+    {
+        if (!$this->extras->contains($extra)) {
+            $this->extras->add($extra);
+            $extra->setService($this);
+        }
+
+        return $this;
+    }
+
+    public function removeExtra(Extra $extra): static
+    {
+        if ($this->extras->removeElement($extra)) {
+            // set the owning side to null (unless already changed)
+            if ($extra->getService() === $this) {
+                $extra->setService(null);
             }
         }
 
